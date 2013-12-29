@@ -7,7 +7,7 @@ module.exports = function(game, opts) {
 
 function Sky(game, opts) {
   this.game   = game;
-  this.time   = opts.time  || 0;
+  this.time   = opts.time  || 1600;
   this.size   = opts.size  || this.game.worldWidth() * 3;
   this._color = opts.color || new this.game.THREE.Color(0, 0, 0);
   this._speed = opts.speed || 0.1;
@@ -180,23 +180,25 @@ Sky.prototype.clear = function() {
 // default sky
 Sky.prototype._default = {
   hours: {
-       0: {color: {h: 230/360, s: 0.3, l: 0}},
-     300: {color: {h: 26/360, s: 0.3, l: 0.5}},
-     500: {color: {h: 230/360, s: 0.3, l: 0.7}},
-    1400: {color: {h: 26/360, s: 0.3, l: 0.5}},
-    1600: {color: {h: 230/360, s: 0.3, l: 0}}
+       1600: {color: {h: 230/360, s: 0.3, l: 0}},
+     1300: {color: {h: 26/360, s: 0.3, l: 0.5}},
+     1100: {color: {h: 230/360, s: 0.3, l: 0.7}},
+    200: {color: {h: 26/360, s: 0.3, l: 0.5}},
+    0: {color: {h: 230/360, s: 0.3, l: 0}}
   },
   init: function() {
-    // add a sun on the bottom
-    this.paint('bottom', this.sun);
+    // add a sun on the top
+    this.paint('top', this.sun);
     // add some stars
     this.paint(['top', 'left', 'right', 'front', 'back'], this.stars, 500);
-    // add full moon to the top
-    this.paint('top', this.moon, 0);
-    // no sunlight at startup
-    this.sunlight.intensity = 0;
+    this.material.transparent = true;
+    this.material.opacity = 1.0;
+    // add full moon to the bottom
+    this.paint('bottom', this.moon, 0);
+    // full sunlight at startup
+    this.sunlight.intensity = 1;
 
-    this.applyEffectsWithinInterval(0, this.time);
+    //this.applyEffectsWithinInterval(0, this.time);
   },
   until: false,
   last: 0
