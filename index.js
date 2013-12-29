@@ -220,7 +220,7 @@ Sky.prototype.fn = function(time) {
   }
   if (my.until === hour) my.until = false;
 
-  this.applyTimeEffects(time, my);
+  this.applyEffectsAtInterval(time, time);
 
   // spin the sky 1 revolution per day
   this.spin(Math.PI * 2 * (time / this.dayLength));
@@ -229,11 +229,11 @@ Sky.prototype.fn = function(time) {
   if (time === this.dayLength) this.day++;
 };
 
-Sky.prototype.applyTimeEffects = function(time) {
+Sky.prototype.applyEffectsAtInterval = function(startInterval, endInterval) {
   for (var i = 0; i < this.timeEffects.length; ++i) {
     var effect = this.timeEffects[i];
 
-    if (time === effect.at)
+    if (effect.at >= startInterval && effect.at <= endInterval)
       effect.run.call(this);
   }
 };
