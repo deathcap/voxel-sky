@@ -197,14 +197,7 @@ Sky.prototype._default = {
   day: 0,
   moonCycle: 29.5305882,
   until: false,
-  last: 0,
-  changeTimes: {
-    moonPhase: 1200,
-    starsIn: 500,
-    starsOut: 1800,
-    sunlightOn: 400,
-    sunlightOff: 1800
-  }
+  last: 0
 };
 
 // default sky fn
@@ -227,15 +220,36 @@ Sky.prototype.fn = function(time) {
   }
   if (my.until === hour) my.until = false;
 
+  this.applyTimeEffects(time, my);
+
+  // spin the sky 1 revolution per day
+  this.spin(Math.PI * 2 * (time / this.dayLength));
+
+  // keep track of days
+  if (time === this.dayLength) my.day++;
+};
+
+Sky.prototype.applyTimeEffects = function(time, my) {
+  for (effectName in this.timeEffects) {
+    if (this.timeEffects.hasOwnProperty(effectName)) {
+      var effect = this.timeEffects[effectName];
+
+      if (time === effect.at)
+        effect.run.call(this, my);
+    }
+  }
+};
+
+Sky.prototype.timeEffects = {
   // change moon phase
-  if (time === my.changeTimes.moonPhase) {
+  moonPhase: {at:1200, run:function() {
     this.paint('top', this.clear);
     this.paint('top', this.moon, Math.floor(my.day % my.moonCycle) / my.moonCycle);
     this.paint('top', this.stars, 500);
-  }
+  }},
 
   // fade stars in and out
-  if (time === my.changeTimes.starsIn) {
+  starsIn: {at:500, run:function() {
     this.paint(['top', 'left', 'right', 'front', 'back'], function() {
       this.material.transparent = true;
       var i = tic.interval(function(mat) {
@@ -243,8 +257,8 @@ Sky.prototype.fn = function(time) {
         if (mat.opacity <= 0) i();
       }, 100, this.material);
     });
-  }
-  if (time === my.changeTimes.starsOut) {
+  }},
+  starsOut: {at:1800, run:function() {
     this.paint(['top', 'left', 'right', 'front', 'back'], function() {
       this.material.transparent = true;
       var i = tic.interval(function(mat) {
@@ -252,33 +266,27 @@ Sky.prototype.fn = function(time) {
         if (mat.opacity >= 1) i();
       }, 100, this.material);
     });
-  }
+  }},
 
   // turn on sunlight
-  if (time === my.changeTimes.sunlightOn) {
+  sunlightOn: {at:400, run:function() {
     (function(sunlight) {
       var i = tic.interval(function() {
         sunlight.intensity += 0.1;
         if (sunlight.intensity <= 1) i();
       }, 100);
     }(this.sunlight));
-  }
+  }},
 
   // turn off sunlight
-  if (time === my.changeTimes.sunlightOff) {
+  sunlightOff: {at:1800, run:function() {
     (function(sunlight) {
       var i = tic.interval(function() {
         sunlight.intensity -= 0.1;
         if (sunlight.intensity <= 0) i();
       }, 100);
     }(this.sunlight));
-  }
-
-  // spin the sky 1 revolution per day
-  this.spin(Math.PI * 2 * (time / this.dayLength));
-
-  // keep track of days
-  if (time === this.dayLength) my.day++;
+  }}
 };
 
 Sky.prototype.rgba = function(c, o) {

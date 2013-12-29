@@ -33,7 +33,7 @@ function disco(time) {
 // create a sky
 var time = document.querySelector('#time');
 var createSky = require('../');
-var sky = createSky(game, {}), oldfn;
+var sky = createSky(game, {time:0}), oldfn;
 game.on('tick', function(dt) {
   time.innerHTML = Math.floor(sky.time);
 });
