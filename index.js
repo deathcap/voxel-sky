@@ -12,6 +12,8 @@ function Sky(game, opts) {
   this._color = opts.color || new this.game.THREE.Color(0, 0, 0);
   this._speed = opts.speed || 0.1;
   this.dayLength = opts.dayLength || 2400;
+  this.day    = opts.day   || 0;
+  this.moonCycle = opts.moonCycle || 29.5305882;
   this.enable();
 }
 
@@ -194,8 +196,6 @@ Sky.prototype._default = {
     // no sunlight at startup
     this.sunlight.intensity = 0;
   },
-  day: 0,
-  moonCycle: 29.5305882,
   until: false,
   last: 0
 };
@@ -226,16 +226,16 @@ Sky.prototype.fn = function(time) {
   this.spin(Math.PI * 2 * (time / this.dayLength));
 
   // keep track of days
-  if (time === this.dayLength) my.day++;
+  if (time === this.dayLength) this.day++;
 };
 
-Sky.prototype.applyTimeEffects = function(time, my) {
+Sky.prototype.applyTimeEffects = function(time) {
   for (effectName in this.timeEffects) {
     if (this.timeEffects.hasOwnProperty(effectName)) {
       var effect = this.timeEffects[effectName];
 
       if (time === effect.at)
-        effect.run.call(this, my);
+        effect.run.call(this);
     }
   }
 };
@@ -244,7 +244,7 @@ Sky.prototype.timeEffects = {
   // change moon phase
   moonPhase: {at:1200, run:function() {
     this.paint('top', this.clear);
-    this.paint('top', this.moon, Math.floor(my.day % my.moonCycle) / my.moonCycle);
+    this.paint('top', this.moon, Math.floor(this.day % this.moonCycle) / this.moonCycle);
     this.paint('top', this.stars, 500);
   }},
 
