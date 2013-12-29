@@ -237,10 +237,10 @@ Sky.prototype.timeEffects = [
   // turn on sunlight
   {at:400, name:'sunlightOn', run:function() {
     (function(sunlight) {
-      var i = tic.interval(function() {
+      //var i = tic.interval(function() {
         sunlight.intensity += 0.1;
-        if (sunlight.intensity <= 1) i();
-      }, 100);
+      //  if (sunlight.intensity <= 1) i();
+      //}, 100);
     }(this.sunlight));
   }},
 
@@ -248,10 +248,10 @@ Sky.prototype.timeEffects = [
   {at:500, name:'starsIn', run:function() {
     this.paint(['top', 'left', 'right', 'front', 'back'], function() {
       this.material.transparent = true;
-      var i = tic.interval(function(mat) {
-        mat.opacity -= 0.1;
-        if (mat.opacity <= 0) i();
-      }, 100, this.material);
+      //var i = tic.interval(function(mat) {
+        this.material.opacity -= 0.1;
+      //  if (mat.opacity <= 0) i();
+      //}, 100, this.material);
     });
   }},
 
@@ -277,10 +277,10 @@ Sky.prototype.timeEffects = [
   // turn off sunlight
   {at:1800, name:'sunlightOff', run:function() {
     (function(sunlight) {
-      var i = tic.interval(function() {
+      //var i = tic.interval(function() {
         sunlight.intensity -= 0.1;
-        if (sunlight.intensity <= 0) i();
-      }, 100);
+      //  if (sunlight.intensity <= 0) i();
+      //}, 100);
     }(this.sunlight));
   }}
 ];
