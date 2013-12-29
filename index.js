@@ -20,7 +20,7 @@ function Sky(game, opts) {
 Sky.prototype.enable = function() {
   this.createBox();
   this.createLights();
-  this.scheduleTime();
+  //this.scheduleTime();
 
   this.game.on('tick', this.onTick = this.tick.bind(this));
 };
@@ -195,6 +195,8 @@ Sky.prototype._default = {
     this.paint('top', this.moon, 0);
     // no sunlight at startup
     this.sunlight.intensity = 0;
+
+    this.applyEffectsWithinInterval(0, this.time);
   },
   until: false,
   last: 0
@@ -220,22 +222,13 @@ Sky.prototype.fn = function(time) {
   }
   if (my.until === hour) my.until = false;
 
-  this.applyEffectsAtInterval(time, time);
+  this.applyEffectsWithinInterval(time, time);
 
   // spin the sky 1 revolution per day
   this.spin(Math.PI * 2 * (time / this.dayLength));
 
   // keep track of days
   if (time === this.dayLength) this.day++;
-};
-
-Sky.prototype.applyEffectsAtInterval = function(startInterval, endInterval) {
-  for (var i = 0; i < this.timeEffects.length; ++i) {
-    var effect = this.timeEffects[i];
-
-    if (effect.at >= startInterval && effect.at <= endInterval)
-      effect.run.call(this);
-  }
 };
 
 Sky.prototype.timeEffects = [
@@ -289,6 +282,17 @@ Sky.prototype.timeEffects = [
     }(this.sunlight));
   }}
 ];
+
+Sky.prototype.applyEffectsWithinInterval = function(start, end) {
+  for (var i = 0; i < this.timeEffects.length; ++i) {
+    var effect = this.timeEffects[i];
+
+    if (effect.at >= start && effect.at <= end)
+      console.log('within ',effect.at,' applying ',effect.name);
+      effect.run.call(this);
+  }
+};
+
 
 Sky.prototype.rgba = function(c, o) {
   if (arguments.length === 4) {
