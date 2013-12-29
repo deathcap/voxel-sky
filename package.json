@@ -25,7 +25,7 @@
     "node": ">= 0.8.0"
   },
   "scripts": {
-    "start": "cd example && ../node_modules/.bin/browservefy world.js 8080 -- -d",
+    "start": "cd example && beefy world.js",
     "gh-pages": "cp -R ./example/* ./ && browserify world.js -o world.js"
   },
   "dependencies": {
@@ -33,7 +33,7 @@
     "tic": "~0.2.0"
   },
   "devDependencies": {
-    "voxel-engine": "~0.17.1",
+    "voxel-engine": "~0.20.1",
     "voxel-perlin-terrain": "0.0.5",
     "voxel-forest": "0.0.0",
     "browservefy": "0.0.10",

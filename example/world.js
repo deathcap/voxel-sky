@@ -32,23 +32,22 @@ function disco(time) {
 
 // create a sky
 var time = document.querySelector('#time');
-var createSky = require('../')(game);
-var sky = createSky(), mysky, oldfn;
+var createSky = require('../');
+var sky = createSky(game, {}), oldfn;
 game.on('tick', function(dt) {
-  mysky = sky(dt);
-  time.innerHTML = Math.floor(mysky.time);
+  time.innerHTML = Math.floor(sky.time);
 });
 
 // add a toolbar
 var toolbar = require('toolbar')('.bar-tab');
 toolbar.on('select', function(item) {
-  if (oldfn) mysky.fn = oldfn;
-  if (item === 'normal')        mysky.speed(0.1);
-  else if (item === 'fast')     mysky.speed(2);
-  else if (item === 'ludacris') mysky.speed(10);
+  if (oldfn) sky.fn = oldfn;
+  if (item === 'normal')        sky.speed(0.1);
+  else if (item === 'fast')     sky.speed(2);
+  else if (item === 'ludacris') sky.speed(10);
   else if (item === 'disco') {
-    oldfn = mysky.fn;
-    mysky.fn = disco;
-    mysky.speed(1);
+    oldfn = sky.fn;
+    sky.fn = disco;
+    sky.speed(1);
   }
 });
