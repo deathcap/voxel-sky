@@ -11,6 +11,7 @@ function Sky(game, opts) {
   this.size   = opts.size  || this.game.worldWidth() * 3;
   this._color = opts.color || new this.game.THREE.Color(0, 0, 0);
   this._speed = opts.speed || 0.1;
+  this.dayLength = opts.dayLength || 2400;
   this.enable();
 }
 
@@ -29,7 +30,7 @@ Sky.prototype.disable = function() {
 };
 
 Sky.prototype.scheduleTime = function() {
-  for (var i = 0; i <= 2400; i += this._speed) this.tick.call(this);
+  for (var i = 0; i <= this.dayLength; i += this._speed) this.tick.call(this);
 };
 
 Sky.prototype.tick = function(dt) {
@@ -41,7 +42,7 @@ Sky.prototype.tick = function(dt) {
   this.inner.position.copy(vec);
   this.ambient.position.copy(vec);
   this.time += this._speed;
-  if (this.time > 2400) this.time = 0;
+  if (this.time > this.dayLength) this.time = 0;
   return this;
 };
 
@@ -196,7 +197,14 @@ Sky.prototype._default = {
   day: 0,
   moonCycle: 29.5305882,
   until: false,
-  last: 0
+  last: 0,
+  changeTimes: {
+    moonPhase: 1200,
+    starsIn: 500,
+    starsOut: 1800,
+    sunlightOn: 400,
+    sunlightOff: 1800
+  }
 };
 
 // default sky fn
@@ -220,14 +228,14 @@ Sky.prototype.fn = function(time) {
   if (my.until === hour) my.until = false;
 
   // change moon phase
-  if (time === 1200) {
+  if (time === my.changeTimes.moonPhase) {
     this.paint('top', this.clear);
     this.paint('top', this.moon, Math.floor(my.day % my.moonCycle) / my.moonCycle);
     this.paint('top', this.stars, 500);
   }
 
   // fade stars in and out
-  if (time === 500) {
+  if (time === my.changeTimes.starsIn) {
     this.paint(['top', 'left', 'right', 'front', 'back'], function() {
       this.material.transparent = true;
       var i = tic.interval(function(mat) {
@@ -236,7 +244,7 @@ Sky.prototype.fn = function(time) {
       }, 100, this.material);
     });
   }
-  if (time === 1800) {
+  if (time === my.changeTimes.starsOut) {
     this.paint(['top', 'left', 'right', 'front', 'back'], function() {
       this.material.transparent = true;
       var i = tic.interval(function(mat) {
@@ -247,7 +255,7 @@ Sky.prototype.fn = function(time) {
   }
 
   // turn on sunlight
-  if (time === 400) {
+  if (time === my.changeTimes.sunlightOn) {
     (function(sunlight) {
       var i = tic.interval(function() {
         sunlight.intensity += 0.1;
@@ -257,7 +265,7 @@ Sky.prototype.fn = function(time) {
   }
 
   // turn off sunlight
-  if (time === 1800) {
+  if (time === my.changeTimes.sunlightOff) {
     (function(sunlight) {
       var i = tic.interval(function() {
         sunlight.intensity -= 0.1;
@@ -267,10 +275,10 @@ Sky.prototype.fn = function(time) {
   }
 
   // spin the sky 1 revolution per day
-  this.spin(Math.PI * 2 * (time / 2400));
+  this.spin(Math.PI * 2 * (time / this.dayLength));
 
   // keep track of days
-  if (time === 2400) my.day++;
+  if (time === this.dayLength) my.day++;
 };
 
 Sky.prototype.rgba = function(c, o) {
