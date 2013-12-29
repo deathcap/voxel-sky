@@ -24,7 +24,8 @@ Sky.prototype.enable = function() {
 
 Sky.prototype.disable = function() {
   this.game.removeListener('tick', this.onTick);
-  // TODO: destroy box, lights
+  this.destroyLights();
+  this.destroyBox();
 };
 
 Sky.prototype.scheduleTime = function() {
@@ -71,12 +72,22 @@ Sky.prototype.createBox = function() {
   game.scene.add(this.inner);
 };
 
+Sky.prototype.destroyBox = function() {
+  this.game.scene.remove(this.outer);
+  this.game.scene.remove(this.inner);
+};
+
 Sky.prototype.createLights = function() {
   var game = this.game;
   this.ambient = new game.THREE.HemisphereLight(0x408CFF, 0xFFC880, 0.6);
   game.scene.add(this.ambient);
   this.sunlight = new game.THREE.DirectionalLight(0xffffff, 0.5);
   game.scene.add(this.sunlight);
+};
+
+Sky.prototype.destroyLights = function() {
+  this.game.scene.remove(this.ambient);
+  this.game.scene.remove(this.sunlight);
 };
 
 Sky.prototype.color = function(end, time) {
