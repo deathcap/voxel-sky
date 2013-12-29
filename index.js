@@ -1,31 +1,35 @@
 var traj = require('voxel-trajectory');
 var tic = require('tic')();
 
-function Sky(opts) {
-  var self = this;
-  if (opts.THREE) opts = {game:opts};
-  this.game   = opts.game;
+module.exports = function(game, opts) {
+  return new Sky(game, opts);
+};
+
+function Sky(game, opts) {
+  this.game   = game;
   this.time   = opts.time  || 0;
   this.size   = opts.size  || this.game.worldWidth() * 3;
   this._color = opts.color || new this.game.THREE.Color(0, 0, 0);
   this._speed = opts.speed || 0.1;
+  this.enable();
 }
 
-module.exports = function(opts) {
-  var sky = new Sky(opts || {});
-  sky.createBox();
-  sky.createLights();
-  return function(fn) {
-    if (typeof fn === 'function') sky.fn = fn;
-    else if (typeof fn === 'number') {
-      // move to the specific time of day
-      sky.time = fn;
-      for (var i = 0; i <= 2400; i += sky._speed) sky.tick.call(sky);
-    }
-    return sky.tick.bind(sky);
-  }
+Sky.prototype.enable = function() {
+  this.createBox();
+  this.createLights();
+  this.scheduleTime();
+
+  this.game.on('tick', this.onTick = this.tick.bind(this));
 };
-module.exports.Sky = Sky;
+
+Sky.prototype.disable = function() {
+  this.game.removeListener('tick', this.onTick);
+  // TODO: destroy box, lights
+};
+
+Sky.prototype.scheduleTime = function() {
+  for (var i = 0; i <= 2400; i += this._speed) this.tick.call(this);
+};
 
 Sky.prototype.tick = function(dt) {
   tic.tick(dt);
