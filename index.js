@@ -230,26 +230,27 @@ Sky.prototype.fn = function(time) {
 };
 
 Sky.prototype.applyTimeEffects = function(time) {
-  for (effectName in this.timeEffects) {
-    if (this.timeEffects.hasOwnProperty(effectName)) {
-      var effect = this.timeEffects[effectName];
+  for (var i = 0; i < this.timeEffects.length; ++i) {
+    var effect = this.timeEffects[i];
 
-      if (time === effect.at)
-        effect.run.call(this);
-    }
+    if (time === effect.at)
+      effect.run.call(this);
   }
 };
 
-Sky.prototype.timeEffects = {
-  // change moon phase
-  moonPhase: {at:1200, run:function() {
-    this.paint('top', this.clear);
-    this.paint('top', this.moon, Math.floor(this.day % this.moonCycle) / this.moonCycle);
-    this.paint('top', this.stars, 500);
+Sky.prototype.timeEffects = [
+  // turn on sunlight
+  {at:400, name:'sunlightOn', run:function() {
+    (function(sunlight) {
+      var i = tic.interval(function() {
+        sunlight.intensity += 0.1;
+        if (sunlight.intensity <= 1) i();
+      }, 100);
+    }(this.sunlight));
   }},
 
-  // fade stars in and out
-  starsIn: {at:500, run:function() {
+  // fade stars in
+  {at:500, name:'starsIn', run:function() {
     this.paint(['top', 'left', 'right', 'front', 'back'], function() {
       this.material.transparent = true;
       var i = tic.interval(function(mat) {
@@ -258,7 +259,17 @@ Sky.prototype.timeEffects = {
       }, 100, this.material);
     });
   }},
-  starsOut: {at:1800, run:function() {
+
+
+  // change moon phase
+  {at:1200, name:'moonPhase', run:function() {
+    this.paint('top', this.clear);
+    this.paint('top', this.moon, Math.floor(this.day % this.moonCycle) / this.moonCycle);
+    this.paint('top', this.stars, 500);
+  }},
+
+  // fade stars out
+  {at:1800, name:'starsOut', run:function() {
     this.paint(['top', 'left', 'right', 'front', 'back'], function() {
       this.material.transparent = true;
       var i = tic.interval(function(mat) {
@@ -268,18 +279,8 @@ Sky.prototype.timeEffects = {
     });
   }},
 
-  // turn on sunlight
-  sunlightOn: {at:400, run:function() {
-    (function(sunlight) {
-      var i = tic.interval(function() {
-        sunlight.intensity += 0.1;
-        if (sunlight.intensity <= 1) i();
-      }, 100);
-    }(this.sunlight));
-  }},
-
   // turn off sunlight
-  sunlightOff: {at:1800, run:function() {
+  {at:1800, name:'sunlightOff', run:function() {
     (function(sunlight) {
       var i = tic.interval(function() {
         sunlight.intensity -= 0.1;
@@ -287,7 +288,7 @@ Sky.prototype.timeEffects = {
       }, 100);
     }(this.sunlight));
   }}
-};
+];
 
 Sky.prototype.rgba = function(c, o) {
   if (arguments.length === 4) {
